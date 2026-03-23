@@ -1,0 +1,22 @@
+[
+  {
+    "title": "Potential phishing domain report",
+    "region": "ASIA",
+    "payload": { "source": "mail-gateway", "severity": "high" }
+  },
+  {
+    "title": "Suspicious account escalation",
+    "region": "EUROPE",
+    "payload": { "source": "identity-service", "severity": "medium" }
+  },
+  {
+    "title": "Fraud transaction anomaly",
+    "region": "US",
+    "payload": { "source": "risk-engine", "severity": "high" }
+  },
+  {
+    "title": "User-generated content abuse",
+    "region": "ASIA",
+    "payload": { "source": "ugc-platform", "severity": "low" }
+  }
+]

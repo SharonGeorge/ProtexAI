@@ -1,0 +1,72 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: services/frontend/Dockerfile
+    container_name: region_event_frontend
+    environment:
+      VITE_API_URL: http://localhost:3000
+    depends_on:
+      - api
+    ports:
+      - "5173:5173"
+
+  db:
+    image: postgres:16-alpine
+    container_name: region_event_db
+    environment:
+      POSTGRES_DB: moderation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "Post123#"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: region_event_redis
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    container_name: region_event_api
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: "Post123#"
+      DB_NAME: moderation
+      JWT_SECRET: super-secret-change-me
+      ASSIGNMENT_TTL_MINUTES: 15
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: services/worker/Dockerfile
+    container_name: region_event_worker
+    environment:
+      DATABASE_URL: postgresql://postgres:Post123%23@db:5432/moderation
+      POLL_INTERVAL_SECONDS: 10
+      INTERNAL_API_URL: http://api:3000/internal/assignments/expired
+      INTERNAL_API_TOKEN: dev-internal-token
+    depends_on:
+      - db
+      - api
+
+volumes:
+  pg_data:

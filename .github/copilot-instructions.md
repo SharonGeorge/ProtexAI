@@ -1,0 +1,12 @@
+- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+- [x] Clarify Project Requirements (provided in prompt: NestJS + PostgreSQL + GraphQL/REST + Python worker + Docker).
+- [x] Scaffold the Project.
+- [x] Customize the Project.
+- [x] Install Required Extensions (none required by setup tools).
+- [x] Compile the Project (NestJS API build passes).
+- [x] Create and Run Task (added Run API (dev) task in .vscode/tasks.json).
+- [ ] Launch the Project (awaiting your debug/launch confirmation).
+- [x] Ensure Documentation is Complete.
+- Work through each checklist item systematically.
+- Keep communication concise and focused.
+- Follow development best practices.

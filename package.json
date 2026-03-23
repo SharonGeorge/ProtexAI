@@ -1,0 +1,19 @@
+{
+  "name": "region-aware-event-assignment",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start:dev": "npm --prefix services/api run start:dev",
+    "build": "npm --prefix services/api run build",
+    "start": "npm --prefix services/api run start",
+    "start:prod": "npm --prefix services/api run start:prod",
+    "worker:install": "python -m pip install -r services/worker/requirements.txt",
+    "worker:start": "python services/worker/worker.py",
+    "frontend:install": "npm --prefix services/frontend install",
+    "frontend:start": "npm --prefix services/frontend run dev",
+    "frontend:build": "npm --prefix services/frontend run build"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.35"
+  }
+}

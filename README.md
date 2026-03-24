@@ -363,4 +363,4 @@ Invoke-WebRequest -UseBasicParsing http://localhost:5173
 - Event ingestion approach: file-based seed from `data/events.json` on API startup.
 - API documentation: endpoint list + curl examples in Section 4.
 - Design decisions/trade-offs: documented in Section 14.
-- Loom video: add your link here → `https://loom.com/share/<your-video-id>`
+- Loom video: add your link here → `https://www.loom.com/share/74ca6fc48fcf4131a2dab3d57cefde8d`

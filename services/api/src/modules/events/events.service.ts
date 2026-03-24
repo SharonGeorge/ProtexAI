@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Event } from './event.entity';
@@ -41,6 +41,23 @@ export class EventsService {
 
   async claimEvent(eventId: string, moderatorId: string, region: Region, ttlMinutes: number): Promise<Assignment> {
     return this.dataSource.transaction(async (manager) => {
+      const moderatorRows = await manager.query(
+        `
+        SELECT id, region
+        FROM moderators
+        WHERE id = $1
+        `,
+        [moderatorId],
+      );
+
+      if (!moderatorRows?.length) {
+        throw new UnauthorizedException('Session is no longer valid. Please login again.');
+      }
+
+      if (moderatorRows[0].region !== region) {
+        throw new ForbiddenException('Token region does not match moderator region. Please login again.');
+      }
+
       const locked = await manager.query(
         `
         SELECT e.id
@@ -73,14 +90,22 @@ export class EventsService {
         [EventStatus.CLAIMED, eventId],
       );
 
-      const assignmentResult = await manager.query(
-        `
-        INSERT INTO assignments ("eventId", "moderatorId", status, "expiresAt")
-        VALUES ($1, $2, $3, NOW() + ($4 || ' minutes')::interval)
-        RETURNING *
-        `,
-        [eventId, moderatorId, AssignmentStatus.ACTIVE, ttlMinutes],
-      );
+      let assignmentResult: Assignment[];
+      try {
+        assignmentResult = await manager.query(
+          `
+          INSERT INTO assignments ("eventId", "moderatorId", status, "expiresAt")
+          VALUES ($1, $2, $3, NOW() + ($4 || ' minutes')::interval)
+          RETURNING *
+          `,
+          [eventId, moderatorId, AssignmentStatus.ACTIVE, ttlMinutes],
+        );
+      } catch (error: any) {
+        if (error?.code === '23503') {
+          throw new UnauthorizedException('Moderator reference is invalid. Please login again.');
+        }
+        throw error;
+      }
 
       return assignmentResult[0] as Assignment;
     });

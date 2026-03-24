@@ -201,10 +201,57 @@ Endpoint: `/graphql`
 
 ## 10) Docker Setup
 
+This project is Docker-first: a single Docker Compose command starts the full prototype stack (backend, frontend, worker, and supporting services).
+
 ### Full stack (single command)
 
 ```bash
 docker compose up --build
+```
+
+Or run in detached mode:
+
+```bash
+docker compose up -d --build
+```
+
+This starts:
+- `api` (NestJS backend, `:3000`)
+- `frontend` (React app, `:5173`)
+- `worker` (Python expiry/reassignment scheduler)
+- `db` (PostgreSQL, `:5432`)
+- `redis` (optional cache, `:6379`)
+
+### Verify full stack is running
+
+```bash
+docker compose ps
+curl http://localhost:3000/metrics
+curl http://localhost:5173
+```
+
+On Windows PowerShell:
+
+```powershell
+docker compose ps
+Invoke-WebRequest -UseBasicParsing http://localhost:3000/metrics
+Invoke-WebRequest -UseBasicParsing http://localhost:5173
+```
+
+### Stop all services
+
+```bash
+docker compose down
+```
+
+### If startup is slow or a service exits unexpectedly
+
+- First build can be slow because Docker pulls base images and installs dependencies.
+- If a service image is stale/corrupted, rebuild it without cache, then restart:
+
+```bash
+docker compose build --no-cache <service>
+docker compose up -d
 ```
 
 ### Infrastructure only (recommended for local API/frontend development)
@@ -212,13 +259,6 @@ docker compose up --build
 ```bash
 docker compose up -d db redis
 ```
-
-Services:
-- `frontend` (React, `:5173`)
-- `api` (NestJS, `:3000`)
-- `worker` (Python scheduler)
-- `db` (PostgreSQL)
-- `redis` (optional cache)
 
 ## 11) Minimal Frontend Flow
 

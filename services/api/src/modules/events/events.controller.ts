@@ -1,4 +1,4 @@
-import { Controller, Get, MessageEvent, Param, Post, Sse, UseGuards } from '@nestjs/common';
+import { Controller, Get, MessageEvent, Param, ParseUUIDPipe, Post, Sse, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Observable } from 'rxjs';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
@@ -48,7 +48,7 @@ export class EventsController {
   }
 
   @Post(':eventId/claim')
-  async claim(@Param('eventId') eventId: string, @CurrentUser() user: JwtPayload) {
+  async claim(@Param('eventId', new ParseUUIDPipe()) eventId: string, @CurrentUser() user: JwtPayload) {
     const ttl = this.configService.get<number>('ASSIGNMENT_TTL_MINUTES', 15);
     const assignment = await this.eventsService.claimEvent(eventId, user.moderatorId, user.region as any, ttl);
 
@@ -66,7 +66,7 @@ export class EventsController {
   }
 
   @Post(':eventId/acknowledge')
-  async acknowledge(@Param('eventId') eventId: string, @CurrentUser() user: JwtPayload) {
+  async acknowledge(@Param('eventId', new ParseUUIDPipe()) eventId: string, @CurrentUser() user: JwtPayload) {
     const result = await this.assignmentsService.acknowledgeByEvent(eventId, user.moderatorId);
 
     this.queryCacheService.invalidateByPrefix(`assignments:active:${user.moderatorId}`);

@@ -7,7 +7,10 @@ import { Region } from '../../common/enums/region.enum';
 describe('EventsService', () => {
   it('throws when an event is not available for claim', async () => {
     const manager = {
-      query: jest.fn().mockResolvedValueOnce([]),
+      query: jest
+        .fn()
+        .mockResolvedValueOnce([{ id: 'mod-1', region: Region.ASIA }])
+        .mockResolvedValueOnce([]),
     };
 
     const dataSource = {
@@ -17,7 +20,7 @@ describe('EventsService', () => {
     const service = new EventsService({} as any, dataSource as any);
 
     await expect(service.claimEvent('event-1', 'mod-1', Region.ASIA, 1)).rejects.toBeInstanceOf(NotFoundException);
-    expect(manager.query).toHaveBeenCalledTimes(1);
+    expect(manager.query).toHaveBeenCalledTimes(2);
   });
 
   it('creates an assignment after locking an available event', async () => {
@@ -31,6 +34,7 @@ describe('EventsService', () => {
     const manager = {
       query: jest
         .fn()
+        .mockResolvedValueOnce([{ id: 'mod-1', region: Region.ASIA }])
         .mockResolvedValueOnce([{ id: 'event-1' }])
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([assignment]),
@@ -45,7 +49,7 @@ describe('EventsService', () => {
 
     expect(result).toEqual(assignment);
     expect(manager.query).toHaveBeenNthCalledWith(
-      2,
+      3,
       expect.stringContaining('UPDATE events'),
       [EventStatus.CLAIMED, 'event-1'],
     );
